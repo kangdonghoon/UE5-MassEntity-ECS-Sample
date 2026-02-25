@@ -72,7 +72,7 @@ BeginPlay
       -> SetupMeshFromEntity()
            첫 엔티티의 SharedFragment(VisualParams)에서
            메시, 머티리얼, 스케일을 읽어 ISM 컴포넌트에 설정
-      -> AddInstanceForEntity() x N
+      -> AddInstanceForEntity()
            ISM 인스턴스 생성 + Entity<->Instance 매핑 구축
 ```
 
@@ -108,7 +108,7 @@ Tick
 
   UpdateVisualization()
       - 유효하지 않은 엔티티의 ISM 인스턴스 제거
-          RemoveInstanceForEntity() — swap & pop 방식
+          RemoveInstanceForEntity()
       - 살아있는 인스턴스의 Transform을 일괄 갱신
           BatchUpdateInstancesTransforms()
 ```
@@ -132,16 +132,11 @@ EntityToInstanceMap (TMap)           InstanceToEntityArray (TArray)
 ## Processor 실행 순서 설정
 
 ```cpp
-// MovementProcessor — CombatProcessor보다 먼저 실행
 ExecutionOrder.ExecuteBefore.Add(TEXT("MassEntityTestCombatProcessor"));
-
-// CombatProcessor — MovementProcessor 이후 실행
 ExecutionOrder.ExecuteAfter.Add(TEXT("MassEntityTestMovementProcessor"));
-
-// HealthRegenProcessor — CombatProcessor 이후 실행
 ExecutionOrder.ExecuteAfter.Add(TEXT("MassEntityTestCombatProcessor"));
 
-// DeathObserver — DeadTag 추가 이벤트에 자동 반응 (순서 지정 불필요)
+// DeathObserver — DeadTag 추가 이벤트에 반응 
 ```
 
 
@@ -174,15 +169,10 @@ Lyra.uproject에 다음 플러그인이 활성화되어 있어야 합니다:
 
 - **Data-Oriented Design** — Fragment에 데이터만, Processor에 로직만 분리. 캐시 친화적 메모리 접근
 - **ISM 캐싱** — 메시 인스턴스를 스폰 시 한 번 생성, 이후 Transform만 일괄 갱신 (BatchUpdate)
-- **Swap & Pop 삭제** — 인스턴스 제거 시 마지막 요소와 교체 후 Pop. O(1) 삭제
+- **Swap & Pop 삭제** — 인스턴스 제거 시 마지막 요소와 교체 후 Pop
 - **Deferred 명령** — 태그 추가, 엔티티 파괴는 Context.Defer()로 안전하게 지연 처리
 - **Observer 패턴** — DeadTag 부여 이벤트에 반응. 명시적 폴링 불필요
 - **Shared Fragment** — 메시, 머티리얼 등 아키타입 공통 데이터는 한 번만 저장
-
-
-
-
-
 
 
 
